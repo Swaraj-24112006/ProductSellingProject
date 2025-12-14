@@ -76,7 +76,7 @@ const addressValidation = [
         .notEmpty()
         .withMessage("state is Required"),
     body("zip")
-        .isStrizip
+        .isString()
         .withMessage("zip must be a string")
         .notEmpty()
         .withMessage("zip is Required"),

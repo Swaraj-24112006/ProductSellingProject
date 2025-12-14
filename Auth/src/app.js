@@ -9,6 +9,6 @@ app.use(express.json())
 app.use(cookie())
 
 
-app.use('/',authRoute)
+app.use('/api/auth',authRoute)
 
 module.exports=app;

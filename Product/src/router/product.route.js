@@ -5,7 +5,7 @@ const { validateProduct } = require('../validators/product.validator')
 
 const router = express.Router();
 
-router.post('/', createAuthMiddleware(["admin","seller"]), validateProduct, ...createProduct)
+router.post('/createproduct', createAuthMiddleware(["admin","seller"]), validateProduct, ...createProduct)
 
 module.exports = router;
 

@@ -11,10 +11,10 @@ const createProduct = [
     async (req, res) => {
         try {
             // Check validation errors
-            const errors = validationResult(req);
-            if (!errors.isEmpty()) {
-                return res.status(400).json({ errors: errors.array() });
-            }
+            // const errors = validationResult(req);
+            // if (!errors.isEmpty()) {
+            //     return res.status(400).json({ errors: errors.array() });
+            // }
 
             const { title, description, currency } = req.body;
             const seller = req.user.id; // Assuming auth middleware sets req.user

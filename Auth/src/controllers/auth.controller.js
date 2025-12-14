@@ -35,7 +35,7 @@ async function registerUser(req, res) {
         process.env.JWT_SECRET_KEY
     )
 
-    res.cookies("token",token,{
+    res.cookie("token",token,{
         httpOnly:true,
         secure : true,
         maxage : 24*60*60*1000
@@ -77,7 +77,7 @@ async function loginUser(req,res){
         role:isUser.role
     },process.env.JWT_SECRET_KEY)
 
-    res.cookies("token",token,{
+    res.cookie("token",token,{
         httpOnly:true,
         secure:true,
         maxage:24*60*60*100
@@ -96,7 +96,7 @@ async function getCurrentUser(req,res){
 
 
 async function logout(req,res){
-    const token = req.cookies.token;
+    const token = req.cookie.token;
 
     if(token){
         await redis.set(`blacklist:${token}`,'true','EX',24*60*60*1000)
@@ -192,4 +192,4 @@ async function deleteUseraddress(req,res){
 
 }
 
-module.exports = { registerUser,loginUser,getCurrentUser,logout,addUseraddress,deleteUseraddress }
+module.exports = { registerUser,loginUser,getUserAddresses,getCurrentUser,logout,addUseraddress,deleteUseraddress }

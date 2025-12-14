@@ -3,7 +3,7 @@ const { body } = require('express-validator');
 const validateProduct = [
     body('title')
         .isString()
-        .isLength({ min: 1 })
+        .trim()
         .withMessage('Title is required and must be a string'),
     body('description')
         .isString()
