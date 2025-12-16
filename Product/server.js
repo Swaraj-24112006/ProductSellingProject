@@ -4,6 +4,6 @@ const connectDB=require("./src/db/db")
 
 connectDB();
 
-app.listen(5173,()=>{
-    console.log("Server Running at Port 5173")
+app.listen(3001,()=>{
+    console.log("Server Running at Port 3001")
 })

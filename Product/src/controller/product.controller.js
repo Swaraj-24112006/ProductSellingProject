@@ -17,7 +17,7 @@ const createProduct = [
             //     return res.status(400).json({ errors: errors.array() });
             // }
 
-            const { title, description, currency } = req.body;
+            const { title, description, amount,currency } = req.body;
             const seller = req.user.id; // Assuming auth middleware sets req.user
 
             let images = [];
@@ -34,17 +34,20 @@ const createProduct = [
             }
 
             // Create product
-            const product = new productModel({
+            const product = await productModel.create({
                 title,
                 description,
-                currency,
+                price:{
+                    amount:amount,
+                    currency:currency
+                },
                 seller,
                 images
             });
 
-            await product.save();
+            
 
-            res.status(201).json({ message: 'Product created successfully', product });
+            res.status(201).json({ message: 'Product created successfully',id:product._id, product });
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Server error' });
@@ -76,7 +79,7 @@ async function getProducts(req, res) {
 }
 
 async function getproductbyid(req, res) {
-    const id = req.params;
+    const id = req.params.id;
 
     const product = await productModel.findById(id);
 

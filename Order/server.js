@@ -5,5 +5,5 @@ const connectDB=require("./src/db/db")
 connectDB();
 
 app.listen(3003,()=>{
-    console.log("Cart Server Running at Port 3003")
+    console.log("Order Server Running at Port 3003")
 })

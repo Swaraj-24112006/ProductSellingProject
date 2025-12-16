@@ -9,10 +9,16 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    currency: {
-        type: String,
-        enum: ['USD', "INR"],
-        required: true
+    price: {
+        amount: {
+            type: Number,
+            required: true
+        },
+        currency: {
+            type: String,
+            enum: ['USD', "INR"],
+            required: true
+        }
     },
     seller: {
         type: mongoose.Schema.Types.ObjectId,
@@ -24,9 +30,9 @@ const productSchema = new mongoose.Schema({
         thumbnail: { type: String },
         id: { type: String }
     }],
-    stock:{
-        type:Number,
-        rdefault:0
+    stock: {
+        type: Number,
+        rdefault: 0
     }
 
 })
@@ -36,6 +42,6 @@ productSchema.index({
     description: 'text'
 });
 
-const productModel = new mongoose.model('product',productSchema)
+const productModel = new mongoose.model('product', productSchema)
 
 module.exports = productModel

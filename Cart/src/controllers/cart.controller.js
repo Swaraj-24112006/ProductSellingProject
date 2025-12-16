@@ -1,11 +1,12 @@
 const cartModel = require('../models/cart.model')
+const mongoose = require('mongoose')
 
 async function addToCart(req, res) {
     try {
         const userId = req.user.id;
         const { productId, quantity = 1 } = req.body;
 
-        
+
 
         // Find user's cart
         let cart = await cartModel.findOne({ userId });
@@ -53,29 +54,21 @@ async function addToCart(req, res) {
 async function updateCartItemQuantity(req, res) {
     try {
         const userId = req.user.id;
+        
         const { productId } = req.params;
         const { quantity } = req.body;
+        console.log("RAW productId:", productId, typeof productId);
 
-        //  Validate productId
-        if (!mongoose.Types.ObjectId.isValid(productId)) {
-            return res.status(400).json({ message: "Invalid product ID" });
-        }
+        
 
-        //  Validate quantity
-        if (!Number.isInteger(quantity) || quantity < 0) {
-            return res.status(400).json({
-                message: "Quantity must be a non-negative integer"
-            });
-        }
-
-        //  Find user's cart
+        // Find cart
         const cart = await cartModel.findOne({ userId });
 
         if (!cart) {
             return res.status(404).json({ message: "Cart not found" });
         }
 
-        //  Find item in cart
+        // 4️⃣ Find product in cart
         const itemIndex = cart.items.findIndex(
             item => item.productId.toString() === productId
         );
@@ -86,15 +79,14 @@ async function updateCartItemQuantity(req, res) {
             });
         }
 
-        //  If quantity is 0 → remove product from cart
+        // 5️⃣ Update or remove
         if (quantity === 0) {
             cart.items.splice(itemIndex, 1);
         } else {
-            //  Otherwise update quantity
             cart.items[itemIndex].quantity = quantity;
         }
 
-        //  Save cart
+        // 6️⃣ Save
         await cart.save();
 
         return res.status(200).json({
@@ -104,9 +96,7 @@ async function updateCartItemQuantity(req, res) {
 
     } catch (error) {
         console.error(error);
-        return res.status(500).json({
-            message: "Internal server error"
-        });
+        return res.status(500).json({ message: "Internal server error" });
     }
 }
 
@@ -117,11 +107,7 @@ async function getMyCart(req, res) {
 
         //  Find cart for logged-in user
         const cart = await cartModel
-            .findOne({ userId })
-            .populate({
-                path: 'items.productId',
-                select: 'title price currency images'
-            });
+            .findOne({ userId });
 
         // If cart does not exist
         if (!cart) {
@@ -229,4 +215,4 @@ async function clearCart(req, res) {
 }
 
 
-module.exports = {addToCart,updateCartItemQuantity,getMyCart,removeFromCart,clearCart}
+module.exports = { addToCart, updateCartItemQuantity, getMyCart, removeFromCart, clearCart }

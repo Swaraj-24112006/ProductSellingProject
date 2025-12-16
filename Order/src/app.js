@@ -9,7 +9,7 @@ app.use(express.json())
 app.use(cookie())
 
 
-app.use('api/order',orderRoute);
+app.use('/api/order',orderRoute);
 
 
 
