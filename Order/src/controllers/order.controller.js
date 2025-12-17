@@ -1,6 +1,6 @@
 const orderModel = require('../models/order.model')
 const axios = require('axios')
-
+const mongoose = require('mongoose')
 
 async function createOrder(req, res) {
     const user = req.user;
@@ -49,7 +49,14 @@ async function createOrder(req, res) {
             totalAmount += price.amount * item.quantity;
         }
 
+        const responseaddress = await axios.get(`http://localhost:3000/api/auth/user/me/addresses`, {
+            headers: {
+                authorization: `Bearer ${token}`
+            }
+        })
 
+
+        const useraddress = responseaddress.data.Address[0];
 
 
         const order = await orderModel.create({
@@ -60,7 +67,14 @@ async function createOrder(req, res) {
                 amount: totalAmount,
                 currency: "INR"
             },
-            shippingAddress: {}
+            shippingAddress: {
+                street: useraddress.street,
+                city: useraddress.city,
+                state: useraddress.state,
+                country: useraddress.country,
+                zip: useraddress.zip,
+                pincode: useraddress.pincode
+            }
         })
 
 
@@ -83,5 +97,134 @@ async function createOrder(req, res) {
 }
 
 
+async function getMyOrders(req, res) {
+    try {
+        const userId = req.user._id || req.user.id;
 
-module.exports = { createOrder };
+        const orders = await orderModel
+            .find({ user: userId })
+            .sort({ createdAt: -1 });
+
+        return res.status(200).json({
+            success: true,
+            TotalOrder: orders.length,
+            orders
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch orders"
+        });
+    }
+}
+
+
+
+async function getOrderById(req, res) {
+    try {
+        const orderId = req.params.id;
+        const userId =  req.user.id;
+
+        //  Validate MongoDB ObjectId
+        if (!mongoose.Types.ObjectId.isValid(orderId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid order ID"
+            });
+        }
+
+        //  Find order (only if belongs to logged-in user)
+        const order = await orderModel.findOne({
+            _id: orderId,
+            user: userId
+        });
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "Order not found"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            order
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch order"
+        });
+    }
+}
+
+
+async function cancelOrder(req, res) {
+    try {
+        const orderId = req.params.id;
+        const userId = req.user._id || req.user.id;
+
+        //  Validate order ID
+        if (!mongoose.Types.ObjectId.isValid(orderId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid order ID"
+            });
+        }
+
+        //  Find order belonging to user
+        const order = await orderModel.findOne({
+            _id: orderId,
+            user: userId
+        });
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "Order not found"
+            });
+        }
+
+        //  Apply cancellation rules
+        if (order.status === 'cancelled') {
+            return res.status(400).json({
+                success: false,
+                message: "Order is already cancelled"
+            });
+        }
+
+        if (!['pending', 'paid'].includes(order.status)) {
+            return res.status(400).json({
+                success: false,
+                message: `Order cannot be cancelled once ${order.status}`
+            });
+        }
+
+        //  Cancel order
+        order.status = 'cancelled';
+        order.cancelledAt = new Date();
+
+        await order.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Order cancelled successfully",
+            order
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to cancel order"
+        });
+    }
+}
+
+
+
+module.exports = { createOrder, getMyOrders, getOrderById,cancelOrder };

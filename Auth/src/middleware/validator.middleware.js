@@ -85,7 +85,7 @@ const addressValidation = [
         .withMessage("pincode must be a string")
         .notEmpty()
         .withMessage("pincode is Required"),
-    validationResult
+    respondValidationErrors
 ]
 
 
