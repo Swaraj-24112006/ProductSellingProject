@@ -226,5 +226,68 @@ async function cancelOrder(req, res) {
 }
 
 
+async function updateDeliveryAddress(req, res) {
+    try {
+        const orderId = req.params.id;
+        const userId = req.user._id || req.user.id;
 
-module.exports = { createOrder, getMyOrders, getOrderById,cancelOrder };
+        const { street, city, state, zip, country, pincode } = req.body;
+
+        //  Validate Order ID
+        if (!mongoose.Types.ObjectId.isValid(orderId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid order ID"
+            });
+        }
+
+        //  Find order belonging to user
+        const order = await orderModel.findOne({
+            _id: orderId,
+            user: userId
+        });
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "Order not found"
+            });
+        }
+
+        //  Business rule: allow update ONLY before payment
+        if (order.status !== 'pending') {
+            return res.status(400).json({
+                success: false,
+                message: "Delivery address can only be updated before payment"
+            });
+        }
+
+        //  Update delivery address
+        order.deliveryAddress = {
+            street,
+            city,
+            state,
+            zip,
+            country,
+            pincode
+        };
+
+        await order.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Delivery address updated successfully",
+            deliveryAddress: order.deliveryAddress
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to update delivery address"
+        });
+    }
+}
+
+
+module.exports = { createOrder, getMyOrders, getOrderById,cancelOrder,updateDeliveryAddress };
