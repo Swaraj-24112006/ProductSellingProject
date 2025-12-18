@@ -99,16 +99,16 @@ async function createOrder(req, res) {
 
 async function getMyOrders(req, res) {
     try {
-        const userId = req.user._id || req.user.id;
+        const userId =  req.user.id;
 
         const orders = await orderModel
-            .find({ user: userId })
+            .find({ userId: userId })
             .sort({ createdAt: -1 });
 
         return res.status(200).json({
             success: true,
             TotalOrder: orders.length,
-            orders
+            order:orders
         });
 
     } catch (error) {
@@ -138,7 +138,7 @@ async function getOrderById(req, res) {
         //  Find order (only if belongs to logged-in user)
         const order = await orderModel.findOne({
             _id: orderId,
-            user: userId
+            userId: userId
         });
 
         if (!order) {
@@ -179,7 +179,7 @@ async function cancelOrder(req, res) {
         //  Find order belonging to user
         const order = await orderModel.findOne({
             _id: orderId,
-            user: userId
+            userId: userId
         });
 
         if (!order) {
@@ -190,7 +190,7 @@ async function cancelOrder(req, res) {
         }
 
         //  Apply cancellation rules
-        if (order.status === 'cancelled') {
+        if (order.status === 'Cancel') {
             return res.status(400).json({
                 success: false,
                 message: "Order is already cancelled"
@@ -205,7 +205,7 @@ async function cancelOrder(req, res) {
         }
 
         //  Cancel order
-        order.status = 'cancelled';
+        order.status = 'Cancel';
         order.cancelledAt = new Date();
 
         await order.save();
@@ -229,7 +229,7 @@ async function cancelOrder(req, res) {
 async function updateDeliveryAddress(req, res) {
     try {
         const orderId = req.params.id;
-        const userId = req.user._id || req.user.id;
+        const userId =  req.user.id;
 
         const { street, city, state, zip, country, pincode } = req.body;
 
@@ -244,7 +244,7 @@ async function updateDeliveryAddress(req, res) {
         //  Find order belonging to user
         const order = await orderModel.findOne({
             _id: orderId,
-            user: userId
+            userId: userId
         });
 
         if (!order) {
@@ -288,6 +288,7 @@ async function updateDeliveryAddress(req, res) {
         });
     }
 }
+
 
 
 module.exports = { createOrder, getMyOrders, getOrderById,cancelOrder,updateDeliveryAddress };
