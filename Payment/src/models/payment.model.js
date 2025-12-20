@@ -6,7 +6,7 @@ const paymentSchema = new mongoose.Schema({
         ref:'order',
         required:true
     },
-    paymentId:{
+    razorpayOrderId:{
         type:String,
         required:true,
         unique:true

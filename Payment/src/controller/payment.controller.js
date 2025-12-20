@@ -28,7 +28,24 @@ async function createPayment(req, res) {
       }
     );
 
+    const order = await razorpay.orders.create({
+      amount: orderResponse.data.totalAmount * 100, // amount in the smallest currency unit
+      currency: "INR",
+      receipt: `receipt_order_${orderId}`,
+    });
+
     console.log(orderResponse.data);
+
+    const paymentdata = await paymentModel.create({
+      orderId: orderId,
+      razorpayOrderId: order.id,
+      userId:req.user.id,
+      price:{
+        amount:order.amount/100,
+        currency:order.currency
+      },
+      status: "Pending"
+    })
 
     return res.status(200).json({
       success: true,
