@@ -19,6 +19,20 @@ async function connect(){
 }
 
 
+async function pushToQueue(queuename , data={}){
+    if(!channel || !connection) {
+        await connect();
+    }
+
+    await channel.assertQueue(queuename,{
+        durable:true
+    })
+
+    channel.sendToQueue(queuename,Buffer.from(JSON.stringify(data)));
+    
+    console.log("Data Send to Queue");
+}
+
 
 
 
