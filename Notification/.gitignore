@@ -1,0 +1,29 @@
+.env
+.env.*
+.env.local
+.envrc
+
+# Credential and key files
+credentials.json
+*-credentials.json
+google-credentials.json
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.crt
+*.der
+
+# Secrets
+secrets.json
+*.secret
+*.env.*.secret
+
+# Node / editor
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+.vscode/
