@@ -2,6 +2,9 @@ const userModel = require('../models/user.model')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const redis = require("../db/redis")
+const {pushToQueue}= require('../broker/broker');
+
+
 
 async function registerUser(req, res) {
     const { username, email, password, fullname, role } = req.body;
@@ -25,7 +28,12 @@ async function registerUser(req, res) {
         role: role || "user"
     })
 
-
+    await pushToQueue("AUTH_NOTIFICATIONS_QUEUE",{
+        userId:user._id,
+        username:user.username,
+        email:user.email,
+        type:"WELCOME_EMAIL"
+    })
     const token = jwt.sign({
         id: user._id,
         email: user.email,

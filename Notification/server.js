@@ -5,5 +5,5 @@ const app=require("./src/app");
 // connectDB();
 
 app.listen(3002,()=>{
-    console.log("Cart Server Running at Port 3002")
+    console.log("Notification Server Running at Port 3002")
 })

@@ -57,4 +57,4 @@ async function subscribeQueue(queuename,callback){
 
 
 
-module.exports = {connect , channel , connection, pushToQueue}
+module.exports = {connect , channel , connection, pushToQueue,subscribeQueue}
